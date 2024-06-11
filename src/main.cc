@@ -4,13 +4,15 @@
 #include "window.cc"
 #include "basic.hh"
 
-#define WINDOW_X 1280
-#define WINDOW_Y 800
+#define IMG_X 500
+#define IMG_Y 500
+
+#include "cpu.cc"
 
 s32 main(){
     WNDCLASSEXW wc = { sizeof(wc), CS_OWNDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
     ::RegisterClassExW(&wc);
-    HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Ray", WS_OVERLAPPEDWINDOW, 100, 100, WINDOW_X, WINDOW_Y, nullptr, nullptr, wc.hInstance, nullptr);
+    HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Ray", WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr, nullptr, wc.hInstance, nullptr);
 
     if (!CreateDeviceWGL(hwnd, &g_MainWindow)){
         CleanupDeviceWGL(hwnd, &g_MainWindow);
@@ -34,7 +36,14 @@ s32 main(){
     ImGui_ImplWin32_InitForOpenGL(hwnd);
     ImGui_ImplOpenGL3_Init();
 
-    u32 *frameBuffer = (u32*)malloc(sizeof(u32)*WINDOW_X*WINDOW_Y);
+    u8 *frameBuffer = (u8*)malloc(IMG_X*IMG_Y*4);
+    GLuint frameBufferTexture;
+    glGenTextures(1, &frameBufferTexture);
+    glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, IMG_X, IMG_Y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     while(true){
         MSG msg;
@@ -49,7 +58,11 @@ s32 main(){
 
         {
             ImGui::Begin("Scene");
-
+            ImGui::Text("frame_rate: %f    time: %f", ImGui::GetIO().Framerate, 1/ImGui::GetIO().Framerate);
+            CPU::draw(frameBuffer);
+            glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, IMG_X, IMG_Y, GL_RGBA, GL_UNSIGNED_BYTE, frameBuffer);
+            ImGui::Image((ImTextureID)frameBufferTexture, ImVec2(IMG_X, IMG_Y));
             ImGui::End();
         }
 

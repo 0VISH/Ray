@@ -3,6 +3,11 @@
 struct Vec3{
     f32 x,y,z;
 
+    Vec3(){
+        x = 0;
+        y = 0;
+        z = 0;
+    };
     Vec3(f32 xArg, f32 yArg, f32 zArg){
         x = xArg;
         y = yArg;
@@ -14,9 +19,14 @@ struct Vec3{
     Vec3 operator-(const Vec3 &other){
         return {x - other.x, y - other.y, z - other.z};
     };
-    Vec3 operator*(u32 num){
+    Vec3 operator*(f32 num){
         return {x*num, y*num, z*num};
     };
+    void operator=(Vec3 &other){
+        x = other.x;
+        y = other.y;
+        z = other.z;
+    }
     void print(){
         printf("(%f, %f, %f)", x, y, z);
     };

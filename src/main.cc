@@ -3,6 +3,7 @@
 #include "backends/imgui_impl_win32.h"
 #include "window.cc"
 #include "basic.hh"
+#include "math.cc"
 
 #define IMG_X 500
 #define IMG_Y 500

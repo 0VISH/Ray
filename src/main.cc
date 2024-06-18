@@ -4,7 +4,7 @@
 #include "window.cc"
 #include "basic.hh"
 #include "math.cc"
-#include "scene.cc"
+#include "world.cc"
 
 #define IMG_X 500
 #define IMG_Y 500
@@ -50,9 +50,13 @@ s32 main(){
     Scene scene;
     Sphere sph1;
     Sphere sph2;
+    sph2.radius = 0.5;
     sph2.pos.x = 1.0;
-    sph2.pos.y = 0.0;
-    sph2.pos.z = 0.5;
+    sph2.pos.y = 0;
+    sph2.pos.z = 0.0;
+    sph2.col.x = 1.0;
+    sph2.col.y = 0.0;
+    sph2.col.z = 0.5;
     scene.spheres.push_back(sph1);
     scene.spheres.push_back(sph2);
 

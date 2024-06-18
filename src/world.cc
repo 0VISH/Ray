@@ -21,3 +21,13 @@ struct Sphere{
 struct Scene{
     std::vector<Sphere> spheres;
 };
+struct HitPayload{
+    Vec3 pos;
+    Vec3 normal;
+    f32 hitDistance;
+    s32 objectIndex;
+};
+struct Ray{
+    Vec3 origin;
+    Vec3 direction;
+};

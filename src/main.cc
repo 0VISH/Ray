@@ -4,6 +4,7 @@
 #include "window.cc"
 #include "basic.hh"
 #include "math.cc"
+#include "scene.cc"
 
 #define IMG_X 500
 #define IMG_Y 500
@@ -46,6 +47,15 @@ s32 main(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    Scene scene;
+    Sphere sph1;
+    Sphere sph2;
+    sph2.pos.x = 1.0;
+    sph2.pos.y = 0.0;
+    sph2.pos.z = 0.5;
+    scene.spheres.push_back(sph1);
+    scene.spheres.push_back(sph2);
+
     while(true){
         MSG msg;
         while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)){
@@ -60,10 +70,27 @@ s32 main(){
         {
             ImGui::Begin("Scene");
             ImGui::Text("frame_rate: %f    time: %f", ImGui::GetIO().Framerate, 1/ImGui::GetIO().Framerate);
-            CPU::draw(frameBuffer);
+            CPU::draw(scene, frameBuffer);
             glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, IMG_X, IMG_Y, GL_RGBA, GL_UNSIGNED_BYTE, frameBuffer);
             ImGui::Image((ImTextureID)frameBufferTexture, ImVec2(IMG_X, IMG_Y));
+            ImGui::End();
+        }
+        {
+            ImGui::Begin("Scene Settings");
+            for(u32 x=0; x<scene.spheres.size(); x++){
+                Sphere &sphere = scene.spheres[x];
+                ImGui::PushID(x);
+                ImGui::DragFloat("Radius", &sphere.radius, 0.1f);
+                ImGui::DragFloat("Pos_X", &sphere.pos.x, 0.1f);
+                ImGui::DragFloat("Pos_Y", &sphere.pos.y, 0.1f);
+                ImGui::DragFloat("Pos_Z", &sphere.pos.z, 0.1f);
+                ImGui::DragFloat("Col_R", &sphere.col.x, 0.1f, 0.0, 1.0);
+                ImGui::DragFloat("Col_G", &sphere.col.y, 0.1f, 0.0, 1.0);
+                ImGui::DragFloat("Col_B", &sphere.col.z, 0.1f, 0.0, 1.0);
+                ImGui::Separator();
+                ImGui::PopID();
+            };
             ImGui::End();
         }
 

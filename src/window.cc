@@ -11,6 +11,8 @@ static WGL_WindowData   g_MainWindow;
 static int              g_Width;
 static int              g_Height;
 
+static WPARAM keyDown;
+
 // Helper functions
 bool CreateDeviceWGL(HWND hWnd, WGL_WindowData* data)
 {
@@ -51,9 +53,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
-        return true;
-
+    ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam);
     switch (msg)
     {
     case WM_SIZE:
@@ -67,6 +67,13 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
             return 0;
         break;
+    case WM_KEYDOWN:{
+        if(wParam == VK_ESCAPE){
+            ::PostQuitMessage(0);
+            return 0;
+        };
+        keyDown = wParam;
+    }break;
     case WM_DESTROY:
         ::PostQuitMessage(0);
         return 0;

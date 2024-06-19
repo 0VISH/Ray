@@ -3,7 +3,6 @@
 struct Material{
     Vec3 col;
     f32 roughness;
-    f32 metalic;
 
     Material(){
         col.x = 1.0;
@@ -11,7 +10,6 @@ struct Material{
         col.z = 1.0;
 
         roughness = 0;
-        metalic = 1;
     };
 };
 struct Sphere{

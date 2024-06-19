@@ -74,8 +74,8 @@ s32 main(){
 
         {
             ImGui::Begin("Scene");
-            ImGui::Text("frame_rate: %f    time: %f", ImGui::GetIO().Framerate, 1/ImGui::GetIO().Framerate);
-            CPU::draw(scene, frameBuffer);
+            ImGui::Text("frame_rate: %f    time: %fms", ImGui::GetIO().Framerate, (1/ImGui::GetIO().Framerate)*1000);
+            CPU::draw(&scene, frameBuffer);
             glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, IMG_X, IMG_Y, GL_RGBA, GL_UNSIGNED_BYTE, frameBuffer);
             ImGui::Image((ImTextureID)frameBufferTexture, ImVec2(IMG_X, IMG_Y));

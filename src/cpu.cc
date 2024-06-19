@@ -14,6 +14,7 @@ namespace CPU{
         Vec3 origin = ray.origin - sphere.pos;
         payload.pos = origin + (ray.direction * hitDistance);
         payload.normal = normalize(payload.pos);
+        payload.pos = payload.pos + sphere.pos;
 
         return payload;
     };
@@ -45,7 +46,7 @@ namespace CPU{
     };
     void draw(Scene &scene, u8 *frameBuffer){
         const u32 antialiasing = 1;
-        const u32 bounces = 3;
+        const u32 bounces = 2;
         for(u32 y=0; y<IMG_Y; y++){
             for(u32 x=0; x<IMG_X*4; x+=4){
                 f32 red = 0;
@@ -67,19 +68,21 @@ namespace CPU{
                     for(u32 bounce=0; bounce<bounces; bounce++){    
                         HitPayload payload = TraceRay(scene, ray);
                         if(payload.objectIndex == -1){
-                            red += multiplier * 0.6;
-                            green += multiplier * 0.7;
-                            blue += multiplier * 0.9;
+                            red += multiplier * 0.0;
+                            green += multiplier * 0.0;
+                            blue += multiplier * 0.0;
                             break;
                         };
                         Sphere &sphere = scene.spheres[payload.objectIndex];
                         Vec3 lightSrc(-1, -1, -1);
                         lightSrc = normalize(lightSrc);
                         f32 alpha = dot(payload.normal, lightSrc*-1);
+                        if(alpha < 0.0) alpha = 0;
+                        alpha *= multiplier;
                         red += alpha * sphere.col.x;
                         green += alpha * sphere.col.y;
                         blue += alpha * sphere.col.z;
-                        multiplier *= 0.5;
+                        multiplier *= 0.7f;
 
                         ray.origin = payload.pos + (payload.normal*0.0001f);
                         ray.direction = reflect(ray.direction, payload.normal);

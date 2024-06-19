@@ -50,9 +50,9 @@ s32 main(){
     Scene scene;
     Sphere sph1;
     Sphere sph2;
-    sph2.radius = 0.5;
+    sph2.radius = 100;
     sph2.pos.x = 1.0;
-    sph2.pos.y = 0;
+    sph2.pos.y = -100.6;
     sph2.pos.z = 0.0;
     sph2.col.x = 1.0;
     sph2.col.y = 0.0;

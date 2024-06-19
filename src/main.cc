@@ -54,11 +54,12 @@ s32 main(){
     sph2.pos.x = 1.0;
     sph2.pos.y = -100.6;
     sph2.pos.z = 0.0;
-    sph2.col.x = 1.0;
-    sph2.col.y = 0.0;
-    sph2.col.z = 0.5;
+    sph2.mat.col.x = 1.0;
+    sph2.mat.col.y = 0.0;
+    sph2.mat.col.z = 0.5;
     scene.spheres.push_back(sph1);
     scene.spheres.push_back(sph2);
+    CPU::init();
 
     while(true){
         MSG msg;
@@ -82,18 +83,23 @@ s32 main(){
         }
         {
             ImGui::Begin("Scene Settings");
+            if(ImGui::Button("Reset Accumulation")){CPU::frameCount = 1;};
+            ImGui::Separator();
             for(u32 x=0; x<scene.spheres.size(); x++){
                 Sphere &sphere = scene.spheres[x];
+                bool changed = false;
                 ImGui::PushID(x);
-                ImGui::DragFloat("Radius", &sphere.radius, 0.1f);
-                ImGui::DragFloat("Pos_X", &sphere.pos.x, 0.1f);
-                ImGui::DragFloat("Pos_Y", &sphere.pos.y, 0.1f);
-                ImGui::DragFloat("Pos_Z", &sphere.pos.z, 0.1f);
-                ImGui::DragFloat("Col_R", &sphere.col.x, 0.1f, 0.0, 1.0);
-                ImGui::DragFloat("Col_G", &sphere.col.y, 0.1f, 0.0, 1.0);
-                ImGui::DragFloat("Col_B", &sphere.col.z, 0.1f, 0.0, 1.0);
+                changed |= ImGui::DragFloat("Radius", &sphere.radius, 0.1f);
+                changed |= ImGui::DragFloat("Pos_X", &sphere.pos.x, 0.1f);
+                changed |= ImGui::DragFloat("Pos_Y", &sphere.pos.y, 0.1f);
+                changed |= ImGui::DragFloat("Pos_Z", &sphere.pos.z, 0.1f);
+                changed |= ImGui::DragFloat("Roughness", &sphere.mat.roughness, 0.1f, 0.0, 1.0);
+                changed |= ImGui::DragFloat("Col_R", &sphere.mat.col.x, 0.1f, 0.0, 1.0);
+                changed |= ImGui::DragFloat("Col_G", &sphere.mat.col.y, 0.1f, 0.0, 1.0);
+                changed |= ImGui::DragFloat("Col_B", &sphere.mat.col.z, 0.1f, 0.0, 1.0);
                 ImGui::Separator();
                 ImGui::PopID();
+                if(changed) CPU::frameCount = 1;
             };
             ImGui::End();
         }
@@ -107,6 +113,7 @@ s32 main(){
         ::SwapBuffers(g_MainWindow.hDC);
     }
 CLEAN_UP:
+    CPU::uninit();
     free(frameBuffer);
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplWin32_Shutdown();

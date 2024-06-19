@@ -1,4 +1,12 @@
 namespace CPU{
+    Vec3 *accumulation;
+    u32 frameCount;
+
+    void init(){
+        accumulation = (Vec3*)malloc(sizeof(Vec3) * IMG_X * IMG_Y);
+        frameCount = 1;
+    };
+    void uninit(){free(accumulation);};
     inline f32 random(){return ((double)rand()/(RAND_MAX));};
     HitPayload miss(Scene &scene, Ray &ray){
         HitPayload payload;
@@ -47,16 +55,18 @@ namespace CPU{
     void draw(Scene &scene, u8 *frameBuffer){
         const u32 antialiasing = 1;
         const u32 bounces = 2;
+        if(frameCount == 1) memset(accumulation, 0, sizeof(Vec3)*IMG_X*IMG_Y);
         for(u32 y=0; y<IMG_Y; y++){
-            for(u32 x=0; x<IMG_X*4; x+=4){
+            for(u32 xPixel=0; xPixel<IMG_X*4; xPixel+=4){
                 f32 red = 0;
                 f32 green = 0;
                 f32 blue = 0;
+                u32 x = xPixel/4;
                 for(u32 anti=0; anti<antialiasing; anti++){
                     f32 r = random();
                     f32 v = (f32)(y+r)/(float)IMG_Y;
                     v = 1 - v*2;
-                    f32 u = (f32)((x/4)+r)/(float)IMG_X;
+                    f32 u = (f32)(x+r)/(float)IMG_X;
                     u = u*2 - 1;
                     Vec3 camPos(0, 0, 2);
                     Vec3 dir = Vec3(u, v, -1);
@@ -79,30 +89,35 @@ namespace CPU{
                         f32 alpha = dot(payload.normal, lightSrc*-1);
                         if(alpha < 0.0) alpha = 0;
                         alpha *= multiplier;
-                        red += alpha * sphere.col.x;
-                        green += alpha * sphere.col.y;
-                        blue += alpha * sphere.col.z;
+                        red += alpha * sphere.mat.col.x;
+                        green += alpha * sphere.mat.col.y;
+                        blue += alpha * sphere.mat.col.z;
                         multiplier *= 0.7f;
 
                         ray.origin = payload.pos + (payload.normal*0.0001f);
-                        ray.direction = reflect(ray.direction, payload.normal);
+                        Vec3 offsetNormal(random() - 0.5, random() - 0.5, random() - 0.5);
+                        ray.direction = reflect(ray.direction, payload.normal + offsetNormal*sphere.mat.roughness);
                     };
                 };
 
                 red /= antialiasing;
                 green /= antialiasing;
                 blue /= antialiasing;
-                if(red < 0) red = 0;
-                if(green < 0) green = 0;
-                if(blue < 0) blue = 0;
-                if(red > 1) red = 1;
-                if(green > 1) green = 1;
-                if(blue > 1) blue = 1;
-                frameBuffer[(y*IMG_X*4) + x] = red*255;
-                frameBuffer[(y*IMG_X*4) + x+1] = green*255;
-                frameBuffer[(y*IMG_X*4) + x+2] = blue*255;
-                frameBuffer[(y*IMG_X*4) + x+3] = 255;
+                accumulation[x + y*IMG_X] = accumulation[x + y*IMG_X] + Vec3(red, green, blue);
+                Vec3 col = accumulation[x + y*IMG_X];
+                col = col / (f32)frameCount;
+                if(col.x < 0) col.x = 0;
+                if(col.y < 0) col.y = 0;
+                if(col.z < 0) col.z = 0;
+                if(col.x > 1) col.x = 1;
+                if(col.y > 1) col.y = 1;
+                if(col.z > 1) col.z = 1;
+                frameBuffer[(y*IMG_X*4) + xPixel] = col.x*255;
+                frameBuffer[(y*IMG_X*4) + xPixel+1] = col.y*255;
+                frameBuffer[(y*IMG_X*4) + xPixel+2] = col.z*255;
+                frameBuffer[(y*IMG_X*4) + xPixel+3] = 255;
             };
         };
+        frameCount++;
     };
 };

@@ -25,6 +25,12 @@ struct Vec3{
     Vec3 operator*(s32 num){
         return {x*num, y*num, z*num};
     };
+    Vec3 operator/(f32 num){
+        return {x/num, y/num, z/num};
+    };
+    Vec3 operator/(s32 num){
+        return {x/num, y/num, z/num};
+    };
     void operator=(Vec3 &other){
         x = other.x;
         y = other.y;
@@ -41,9 +47,9 @@ f32 dot(const Vec3 &vec1, const Vec3 &vec2){
 f32 magnitude(const Vec3 &vec){
     return sqrt(dot(vec, vec));
 }
-Vec3 normalize(const Vec3 &vec){
+Vec3 normalize(Vec3 &vec){
     f32 mag = magnitude(vec);
-    return {vec.x/mag, vec.y/mag, vec.z/mag};
+    return vec/mag;
 };
 Vec3 reflect(Vec3 &vec, Vec3 &normal){
     return vec - (normal * 2 * dot(vec, normal));
